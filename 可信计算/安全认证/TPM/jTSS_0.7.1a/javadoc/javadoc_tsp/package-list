@@ -1,0 +1,9 @@
+iaik.tc.tss.api.constants.tpm
+iaik.tc.tss.api.constants.tsp
+iaik.tc.tss.api.exceptions.common
+iaik.tc.tss.api.exceptions.tcs
+iaik.tc.tss.api.exceptions.tsp
+iaik.tc.tss.api.structs.common
+iaik.tc.tss.api.structs.tpm
+iaik.tc.tss.api.structs.tsp
+iaik.tc.tss.api.tspi

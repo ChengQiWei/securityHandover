@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+  IAIK jTSS build-script for ant
+  (c) 2007 by Thomas Winkler <thomas.winkler@iaik.tugraz.at>, IAIK, TU Graz
+    updated 2008 by Michael Steurer <michael.steurer@iaik.tugraz.at>, IAIK, TU Graz
+-->
+
+<project basedir="." default="jars"  name="jTSS">
+
+  <!-- jar output file names -->
+  <property name="jarname_tcs" value="iaik_jtss_tcs.jar"/>
+  <property name="jarname_tsp" value="iaik_jtss_tsp.jar"/>
+  <property name="jarname_tsp_tests" value="iaik_jtss_tsp_tests.jar"/>
+  <property name="jarname_tools" value="iaik_jtss_tools.jar"/>
+
+  <!-- SOAP: jar output file names -->
+  <property name="jarname_tcs_soap" value="iaik_jtss_tcs_soap.jar"/>
+  <property name="jarname_tsp_soap" value="iaik_jtss_tsp_soap.jar"/>
+
+  <!-- SOAP: location of the WSDL file-->
+  <property name="wsdlFile" value="resources/soap_config/tcs.wsdl"/>
+
+  <!-- Log files-->
+  <property name="logDirectory" value="log"/>
+
+
+  <!-- source and class folders -->
+  <property name="srcdir" value="src"/>
+  <property name="clsdir" value="classes"/>
+
+  <macrodef name="jtss.dirs">
+    <attribute name="name"/>
+    <attribute name="dir"/>
+    <sequential>
+      <property name="src_@{name}" value="@{dir}/${srcdir}"/>
+      <property name="cls_@{name}" value="@{dir}/${clsdir}"/>
+    </sequential>
+  </macrodef>
+
+  <jtss.dirs name="common"    dir="jtss_common"/>
+  <jtss.dirs name="tcs"       dir="jtss_tcs"/>
+  <jtss.dirs name="tsp"       dir="jtss_tsp"/>
+  <jtss.dirs name="tools"     dir="jtss_tools"/>
+
+  <property  name="src_tsp_tests" value="jtss_tsp/src_tests"/>
+  <property  name="cls_tsp_tests" value="jtss_tsp/classes_tests"/>
+
+
+  <!-- SOAP:  Unfortunately we need two version of the server and client location. -->
+  <!--        The latter is for the cleanup. -->
+  <property name="serverties_location"        value="iaik.tc.tss.impl.java.tcs.soapservice.serverties"/>
+  <property name="clientstubs_location"       value="iaik.tc.tss.impl.java.tsp.tcsbinding.soapservice.clientstubs"/>
+  <property name="serverties_location_slash"  value="iaik/tc/tss/impl/java/tcs/soapservice/serverties"/>
+  <property name="clientstubs_location_slash" value="iaik/tc/tss/impl/java/tsp/tcsbinding/soapservice/clientstubs"/>
+
+  <!-- SOAP: Exclude all SOAP entities -->
+  <patternset id="soap">
+    <exclude name="**/soapservice/**"/>
+    <exclude name="**/*SOAP**"/>
+  </patternset>
+
+  <!-- SOAP: Include all SOAP entities -->
+  <patternset id="soap_include">
+    <include name="**/soapservice/**"/>
+    <include name="**/*SOAP**"/>
+    <include name="${version_file}"/>
+  </patternset>
+
+  <!-- native tddl folders -->
+  <property name="tddl_vista" value="jtss_tcs/tddl_vista/tddl_vista_binary"/>
+
+  <!-- misc constatns -->
+  <property name="version_file" value="jtss_version.txt"/>
+  <property name="jtss_debug" value="on"/>
+
+  <!-- compiler settings -->
+  <property name="javac.target" value="1.5"/>
+  <property name="javac.source" value="${javac.target}"/>
+
+  <!-- timestamp to be included in jar files -->
+  <tstamp>
+    <format property="TIMESTAMP" pattern="yyyyMMdd HH:mm:ss"/>
+  </tstamp>
+
+  <!-- classpath -->
+  <path id="classpath">
+    <pathelement path="${cls_common}"/>
+    <pathelement path="${cls_tcs}"/>
+    <pathelement path="${cls_tsp}"/>
+    <pathelement location="junit.jar"/>
+  	<pathelement location="iaik_jce.jar"/>
+  </path>
+
+  <!-- SOAP: Location of the SOAP specific libraries -->
+  <property name="libLocation" value="resources/soap_libs"/>
+
+  <!-- check if version file is available -->
+  <available file="version.txt" property="version.available"/>
+
+  <!-- read jTSS version -->
+  <loadfile property="version" srcFile="version.txt">
+    <filterchain>
+      <filterreader classname="org.apache.tools.ant.filters.StripLineBreaks"/>
+    </filterchain>
+  </loadfile>
+
+  <!-- SOAP: Define the classpath needed for the wsdl generation -->
+  <path id="soap.classpath">
+    <pathelement location="${libLocation}/activation.jar"/>
+    <pathelement location="${libLocation}/axis.jar"/>
+    <pathelement location="${libLocation}/commons-logging-1.0.4.jar"/>
+    <pathelement location="${libLocation}/log4j-1.2.8.jar"/>
+    <pathelement location="${libLocation}/mail.jar"/>
+    <pathelement location="${libLocation}/wsdl4j-1.5.1.jar"/>
+    <pathelement location="${libLocation}/axis-ant.jar"/>
+    <pathelement location="${libLocation}/commons-discovery-0.2.jar"/>
+    <pathelement location="${libLocation}/jaxrpc.jar"/>
+    <pathelement location="${libLocation}/saaj.jar"/>
+    <pathelement location="${libLocation}/wsdl4j-1.5.1.jar"/>
+    <pathelement location="${libLocation}/xerces.jar"/>
+    <pathelement location="${libLocation}/commons-daemon.jar"/>
+  </path>
+
+  <macrodef name="jtss.compile.macro">
+    <attribute name="name"/>
+    <attribute name="dir"/>
+    <element   name="jtss.compile.elements" optional="yes"/>
+    <sequential>
+      <echo message="Compiling the IAIK jTSS @{name} ..."/>
+      <mkdir dir="@{dir}/${clsdir}"/>
+      <javac destdir="@{dir}/${clsdir}" debug="${jtss_debug}" source="${javac.source}" target="${javac.target}" includeantruntime="false">
+        <src path="@{dir}/${srcdir}"/>
+        <classpath  refid="classpath"/>
+        <jtss.compile.elements/>
+      </javac>
+    </sequential>
+  </macrodef>
+
+  <presetdef name="jtss.compile">
+    <jtss.compile.macro name="${name}" dir="${dir}">
+      <jtss.compile.elements>
+        <patternset refid="soap"/>   <!-- SOAP: Exclude the SOAP entities -->
+      </jtss.compile.elements>
+    </jtss.compile.macro>
+  </presetdef>
+
+  <!-- insert TSS version into source -->
+  <target name="insert_tss_version" description="inserts the TSS version into the TcContext and TcTcsContext source files" if="version.available">
+    <replaceregexp match="String tcsVersion_.*;" file="${src_tcs}/iaik/tc/tss/impl/java/tcs/ctxmgr/TcTcsContext.java"
+      replace="String tcsVersion_ = &quot;${version}&quot;;">
+    </replaceregexp>
+    <replaceregexp match="String tspVersion_.*;" file="${src_tsp}/iaik/tc/tss/impl/java/tsp/TcContext.java"
+      replace="String tspVersion_ = &quot;${version}&quot;;">
+    </replaceregexp>
+  </target>
+
+  <!-- compile target -->
+  <target name="compile" depends="insert_tss_version" description="compile all Java source files">
+    <jtss.compile.macro name="common" dir="jtss_common"/>
+    <jtss.compile name="TCS classes"  dir="jtss_tcs"/>
+    <jtss.compile name="TSP classes"  dir="jtss_tsp"/>
+    <jtss.compile name="tools"        dir="jtss_tools"/>
+
+    <!-- <jtss.compile name="TSP jUnit test classes" dir="tests/jtss_tsp"/> -->
+    <echo message="Compiling the IAIK jTSS TSP jUnit test classes..."/>
+    <mkdir dir="${cls_tsp_tests}"/>
+    <javac destdir="${cls_tsp_tests}" debug="${jtss_debug}" source="${javac.source}" target="${javac.target}" includeantruntime="false">
+      <patternset refid="soap"/>   <!-- SOAP: Exclude the SOAP entities -->
+      <src path="${src_tsp_tests}"/>
+      <classpath refid="classpath"/>
+    </javac>
+
+  </target>
+
+
+  <presetdef name="jtss.compile.soap">
+    <jtss.compile.macro name="${name}" dir="${dir}">
+      <jtss.compile.elements>
+        <classpath refid="soap.classpath"/>
+      </jtss.compile.elements>
+    </jtss.compile.macro>
+  </presetdef>
+
+  <!-- SOAP: compile SOAP target -->
+  <target name="compile_soap" depends="compile, wsdl" description="Compiling the SOAP interface for TCS and TSP...">
+    <jtss.compile.soap name="TCS SOAP classes" dir="jtss_tcs"/>
+    <jtss.compile.soap name="TSP SOAP classes" dir="jtss_tsp"/>
+  </target>
+
+
+  <!-- TCS jar file -->
+  <target name="jar_tcs" depends="compile" description="build IAIK jTSS TCS">
+    <echo message="Building TCS jar..."/>
+    <jar jarfile="${jarname_tcs}">
+      <fileset dir="">
+        <include name="${version_file}"/>
+      </fileset>
+      <fileset dir="${cls_common}">
+        <include name="**"/>
+      </fileset>
+      <fileset dir="${cls_tcs}">
+        <include name="**"/>
+      </fileset>
+      <fileset dir="${tddl_vista}">
+        <include name="*.dll"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- TSP jar file -->
+  <target name="jar_tsp" depends="compile" description="build IAIK jTSS TSP">
+    <echo message="Building TSP jar..."/>
+    <jar jarfile="${jarname_tsp}">
+      <fileset dir="">
+        <include name="${version_file}"/>
+      </fileset>
+      <fileset dir="${cls_common}">
+        <include name="**/*.class"/>
+        <exclude name=".svn"/>
+      </fileset>
+      <fileset dir="${cls_tsp}">
+        <include name="**/*.class"/>
+        <exclude name=".svn"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- SOAP: TCS SOAP jar file -->
+  <target name="jar_soap" depends="compile_soap" description="build IAIK jTSS SOAP interface">
+    <echo message="Building TCS SOAP jar..."/>
+    <echo message="${version_file}"/>
+    <jar jarfile="${jarname_tcs_soap}">
+      <fileset dir="${cls_tcs}">
+        <patternset refid="soap_include"/>
+      </fileset>
+      <fileset dir="">
+        <include name="${version_file}"/>
+      </fileset>
+    </jar>
+
+    <echo message="Building TSP SOAP jar..."/>
+    <jar jarfile="${jarname_tsp_soap}">
+      <fileset dir="${cls_tsp}">
+        <patternset refid="soap_include"/>
+      </fileset>
+      <fileset dir="">
+        <include name="${version_file}"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- jUnit tests jar file -->
+  <target name="jar_junit" depends="compile" description="build jUnit test for TSP.">
+    <echo message="Building TSP jar..."/>
+    <jar jarfile="${jarname_tsp_tests}">
+      <fileset dir="">
+        <include name="${version_file}"/>
+      </fileset>
+      <fileset dir="${cls_tsp_tests}">
+        <include name="**/**.class"/>
+        <exclude name=".svn"/>
+        <exclude name="**/PrivateTest*" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- tools jar file -->
+  <target name="jar_tools" depends="compile" description="build jTSS tools.">
+    <echo message="Building tools jar..."/>
+    <jar jarfile="${jarname_tools}">
+      <fileset dir="">
+        <include name="${version_file}"/>
+      </fileset>
+      <fileset dir="${cls_tools}">
+        <include name="**/**.class"/>
+        <exclude name=".svn"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <!-- SOAP: Generate both - serverties and clientstubs -->
+  <target name="wsdl" description="Generate framework from WSDL">
+    <echo message="Generate the java files from the given WSDL file..."/>
+    <echo message="WSDL file: ${wsdlFile}"/>
+    <java classname="org.apache.axis.wsdl.WSDL2Java" fork="true">
+      <arg line="-o ${src_tcs} -p ${serverties_location} ${wsdlFile} -s"/>
+      <classpath refid="soap.classpath"/>
+    </java>
+    <java classname="org.apache.axis.wsdl.WSDL2Java" fork="true">
+      <arg line="-o ${src_tsp} -p ${clientstubs_location} ${wsdlFile}"/>
+      <classpath refid="soap.classpath"/>
+    </java>
+  </target>
+
+  <!-- create version file to be included in jars -->
+  <target name="pre_jar" if="version.available">
+    <copy file="version.txt" overwrite="true" tofile="${version_file}"/>
+    <echo message="${TIMESTAMP}" file="${version_file}" append="true"/>
+  </target>
+
+  <!-- cleanup jar version file -->
+  <target name="post_jar" if="version.available">
+    <delete file="${version_file}"/>
+  </target>
+
+  <!-- build all jars -->
+  <target name="jars" depends="compile, pre_jar, jar_tcs, jar_tsp, jar_tools, jar_junit, post_jar" description="build jars">
+    <echo message="Building jars..."/>
+  </target>
+
+  <!-- build all jars - this is actually the same as above but we don't create and delete the jtss_version.txt here -->
+  <target name="jars_from_soap" depends="compile, jar_tcs, jar_tsp, jar_junit" description="build jars">
+    <echo message="Building jars..."/>
+  </target>
+
+  <!-- SOAP: build all jars -->
+  <target name="jars_soap" depends="pre_jar, jars_from_soap, jar_soap, post_jar" description="build jars with SOAP interface">
+    <echo message="Building jars with SOAP..."/>
+  </target>
+
+  <!-- cleanup -->
+  <target name="clean" description="Make me spotless clean">
+    <delete dir="${cls_common}"/>
+    <delete dir="${cls_tcs}"/>
+    <delete dir="${cls_tsp}"/>
+    <delete dir="${cls_tsp_tests}"/>
+    <delete file="${version_file}"/>
+    <delete file="${jarname_tcs}"/>
+    <delete file="${jarname_tsp}"/>
+    <delete file="${jarname_tsp_tests}"/>
+
+    <!-- SOAP: remove SOAP stuff -->
+    <delete file="${jarname_tcs_soap}"/>
+    <delete file="${jarname_tsp_soap}"/>
+    <delete dir="${src_tsp}/${clientstubs_location_slash}"/>  <!-- remove SOAP sources -->
+    <delete dir="${src_tcs}/${serverties_location_slash}"/>   <!-- remove SOAP sources -->
+    <delete dir="${logDirectory}"/>   <!-- remove Log directory-->
+    <!-- SOAP: remove SOAP stuff -->
+  </target>
+</project>

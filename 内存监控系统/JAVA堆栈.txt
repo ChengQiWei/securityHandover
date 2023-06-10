@@ -1,0 +1,10 @@
+private void PrintCallStack()
+{
+	java.util.Map<Thread, StackTraceElement[]> ts = Thread.getAllStackTraces();   
+    StackTraceElement[] ste = ts.get(Thread.currentThread());
+	int iStackNum = ste.length;
+	for (int i=4;i<iStackNum;i++)
+	{
+		Log.e("MYTRACE", "---->"+ste[i].toString()); 
+	}  
+}

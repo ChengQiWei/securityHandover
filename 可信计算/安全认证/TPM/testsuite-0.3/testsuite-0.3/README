@@ -1,0 +1,173 @@
+These are the testcases that exercise the TSS stack. They can be run
+either through the the LTP framework or standalone.  The testcases have been
+tested against the 20040304 version of LTP.
+
+Please do not execute these testcases on a machine where you are actively
+using the TPM.
+
+These testcases must be run on a machine with a TPM and a TSS. Boot the
+machine and take ownership of your TPM.  If you have the tpm-tools package,
+you can run tpm_takeownership to take ownership of your TPM and set the owner
+and SRK passwords.  If you don't have tpm-tools, run the following test case
+to set the owner and SRK passwords (after building the testsuite):
+
+$ testsuite/tcg/init/Tspi_TPM_TakeOwnership01 -v 1.1
+
+This test will set the owner and SRK passwords to the value of the environment
+variables TESTSUITE_OWNER_SECRET and TESTSUITE_SRK_SECRET, respectively. During
+the testsuite run, you will need to either set these environment variables to
+their correct values, or change their values explicitly in tcg/include/common.h
+and rebuild the testsuite.
+
+To build and run the testsuite:
+
+Standalone:
+	1) cd tcg
+	2) make
+	3) cd ..
+	4) ./tsstests.sh
+
+Integrated with the LTP:
+	1) Download and expand LTP
+	2) Obtain testcases from CVS (or other package).
+	3) Copy the tcg directory into <ltp>/testcases
+	4) Apply the Makefile patch
+	5) make
+	6) make install
+	7) ./runalltests.sh -f </full/path/to/ltp>/runtest/tcg -l ./logfile -p
+
+On platforms where the TSS lib is compiled 64bit (ppc64, x86_64, s390x), add
+the following CFLAGS to make:
+$ CFLAGS=-m64 make
+
+
+By default, the 1.1 version of each testcase will be run. To run the testsuite
+against another version of the spec, run ./tsstests.sh -v <version>. Also,
+individual sets of tests can be run by passing the directory name of the tests
+to tsstests.sh, for example:
+
+To run the key tests only (version 1.1 tests will be run by default):
+./tsstests.sh key
+
+To run the tests in the tpm directory against TSS version 1.2:
+./tsstests.sh -v 1.2 -d tpm
+
+To run all tests against a TSS version 1.2:
+./tsstests.sh -v 1.2
+
+Run tsstests.sh -h to see all available options.
+
+这些是运行TSS堆栈的测试用例。他们可以跑
+
+或者通过LTP框架或者独立的。测试用例已经
+
+根据20040304版本的LTP进行测试。
+
+
+
+请不要在活动的机器上执行这些测试用例
+
+使用TPM。
+
+
+
+这些测试用例必须在带有TPM和TSS的机器上运行。启动
+
+机器并取得TPM的所有权。如果您有tpm工具包，
+
+您可以运行tpm_takeownership来获取tpm的所有权并设置所有者
+
+和SRK密码。如果没有tpm工具，请运行以下测试用例
+
+要设置所有者和SRK密码（在构建testsuite之后）：
+
+
+
+$testsuite/tcg/init/Tspi_TPM_TakeOwnership01-v1.1
+
+
+
+此测试将所有者和SRK密码设置为环境的值
+
+变量TESTSUITE_OWNER_SECRET和TESTSUITE_SRK_SECRET。期间
+
+在testsuite运行时，您需要将这些环境变量设置为
+
+或者在tcg/include/common.h中显式地更改它们的值
+
+重建测试套件。
+
+
+
+要构建和运行测试套件：
+
+
+
+单机版：
+
+1） cd tcg
+
+2） 制造
+
+3） cd。。
+
+4） 一/tsstests.sh
+
+
+
+与LTP集成：
+
+1） 下载并扩展LTP
+
+2） 从CVS（或其他包）获取测试用例。
+
+3） 将tcg目录复制到<ltp>/testcases中
+
+4） 应用Makefile补丁
+
+5） 制造
+
+6） 使安装
+
+7） 一/运行测试.sh-f</full/path/to/ltp>/runtest/tcg-l./logfile-p
+
+
+
+在TSS库编译为64位（ppc64、x86_64、s390x）的平台上，添加
+
+要生成以下CFLAG：
+
+$CFLAGS=-m64制造
+
+
+
+
+默认情况下，将运行每个测试用例的1.1版本。运行测试套件
+
+针对另一个版本的规范，运行/tsstests.sh-v<版本>。也，
+
+通过传递测试的目录名，可以运行单个测试集
+
+到tsstests.sh，例如：
+
+
+
+要仅运行密钥测试（默认情况下将运行版本1.1测试）：
+
+./tsstests.sh钥匙
+
+
+
+要针对TSS版本1.2运行tpm目录中的测试：
+
+./tsstests.sh-1.2-d tpm版本
+
+
+
+要针对TSS版本1.2运行所有测试：
+
+./tsstests.sh-第1.2节
+
+
+
+跑tsstests.sh-h查看所有可用选项。

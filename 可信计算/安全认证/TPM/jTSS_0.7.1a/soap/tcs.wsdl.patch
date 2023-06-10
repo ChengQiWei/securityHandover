@@ -1,0 +1,201 @@
+--- tcs.wsdl.orig	2010-07-19 09:35:09.000000000 +0200
++++ tcs.wsdl	2010-07-19 11:05:45.000000000 +0200
+@@ -63,8 +63,8 @@
+ 			<complexType name="TSS-KM-KEYINFO">
+ 				<sequence>
+ 					<element name="versionInfo" type="tcs:TSS-VERSION" minOccurs="1" maxOccurs="1"/>
+-					<element name="keyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1"/>
+-					<element name="parentKeyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1"/>
++					<element name="keyUUID" type="tcs:TSS-UUID" minOccurs="0" maxOccurs="1" nillable="true"/>
++					<element name="parentKeyUUID" type="tcs:TSS-UUID" minOccurs="0" maxOccurs="1" nillable="true"/>
+ 					<element name="bAuthDataUsage" type="xsd:byte" minOccurs="1" maxOccurs="1"/>
+ 					<element name="fIsLoaded" type="xsd:byte" minOccurs="1" maxOccurs="1"/>
+ 					<element name="rgbVendorData" type="xsd:base64Binary" minOccurs="0" maxOccurs="1" nillable="true"/>
+@@ -91,7 +91,7 @@
+ 			<complexType name="TCS-LOADKEY-INFO">
+ 				<sequence>
+ 					<element name="keyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1"/>
+-					<element name="parentKeyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1"/>
++					<element name="parentKeyUUID" type="tcs:TSS-UUID" minOccurs="0" maxOccurs="1" nillable="true"/>
+ 					<element name="paramDigest" type="xsd:base64Binary" minOccurs="1" maxOccurs="1"/>
+ 					<element name="authData" type="tcs:TPM-AUTH" minOccurs="1" maxOccurs="1"/>
+ 				</sequence>
+@@ -111,6 +111,23 @@
+ 				</sequence>
+ 			</complexType>
+ 			<!-- Types are impelemented in order of the documentation -->
++      <!-- Begin: Additional implementation of getCredentials as 
++      it is not specified in the origin WSDL file       -->
++      <complexType name="GetCredentials-InParms">
++        <sequence>
++          <element name="hContext" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
++        </sequence>
++      </complexType>
++      <complexType name="GetCredentials-OutParms">
++        <sequence>
++          <element name="result" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
++          <element name="endorsementCredential" type="xsd:base64Binary" minOccurs="1" maxOccurs="1" nillable="true" />
++          <element name="platformCredential" type="xsd:base64Binary" minOccurs="1" maxOccurs="1" nillable="true"/>
++          <element name="conformanceCredential" type="xsd:base64Binary" minOccurs="1" maxOccurs="1" nillable="true"/>
++        </sequence>
++      </complexType>
++      <!-- End: Additional implementation of getCredentials as 
++      it is not specified in the origin WSDL file       -->
+ 			<complexType name="OpenContext-OutParms">
+ 				<sequence>
+ 					<element name="hContext" type="xsd:unsignedInt" minOccurs="0" maxOccurs="1"/>
+@@ -146,7 +163,7 @@
+ 					<element name="WrappingKeyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1" nillable="false"/>
+ 					<element name="KeyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1" nillable="false"/>
+ 					<element name="rgbKey" type="xsd:base64Binary" minOccurs="1" maxOccurs="1" nillable="false"/>
+-					<element name="gbVendorData" type="xsd:base64Binary" minOccurs="1" maxOccurs="1" nillable="false"/>
++					<element name="gbVendorData" type="xsd:base64Binary" minOccurs="0" maxOccurs="1" nillable="true"/>
+ 				</sequence>
+ 			</complexType>
+ 			<complexType name="RegisterKey-OutParms">
+@@ -185,7 +202,7 @@
+ 			<complexType name="EnumRegisteredKeys-InParms">
+ 				<sequence>
+ 					<element name="hContext" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
+-					<element name="pKeyUUID" type="tcs:TSS-UUID" minOccurs="1" maxOccurs="1" nillable="true"/>
++					<element name="pKeyUUID" type="tcs:TSS-UUID" minOccurs="0" maxOccurs="1" nillable="true"/>
+ 				</sequence>
+ 			</complexType>
+ 			<complexType name="EnumRegisteredKeys-OutParms">
+@@ -337,6 +354,21 @@
+ 					<element name="result" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
+ 				</sequence>
+ 			</complexType>
++      <!-- Begin: Additional implementation of pcrEventCount as 
++      it is not specified in the origin WSDL file       -->
++      <complexType name="PcrEventCount-InParms">
++        <sequence>
++          <element name="hContext" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
++          <element name="pcrIndex" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
++        </sequence>
++      </complexType>
++      <complexType name="PcrEventCount-OutParms">
++        <sequence>
++          <element name="result" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
++        </sequence>
++      </complexType>
++      <!-- End: Additional implementation of pcrEventCount as 
++      it is not specified in the origin WSDL file       -->
+ 			<complexType name="GetPcrEvent-InParms">
+ 				<sequence>
+ 					<element name="hContext" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
+@@ -1404,7 +1436,7 @@
+ 					<element name="hNVStore" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
+ 					<element name="offset" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
+ 					<element name="pulDataLength" type="xsd:unsignedInt" minOccurs="1" maxOccurs="1"/>
+-					<element name="privAuth" type="tcs:TPM-AUTH" minOccurs="1" maxOccurs="1"/>
++					<element name="privAuth" type="tcs:TPM-AUTH" minOccurs="0" maxOccurs="1" nillable="true"/>
+ 				</sequence>
+ 			</complexType>
+ 			<complexType name="NV_ReadValue-OutParms">
+@@ -1883,6 +1915,16 @@
+ 	<message name="OpenContextResponse">
+ 		<part name="outParms" type="tcs:OpenContext-OutParms"/>
+ 	</message>
++  <!-- Begin: Additional implementation of getCredentials as 
++  it is not specified in the origin WSDL file       -->
++  <message name="GetCredentialsRequest">
++    <part name="inParms" type="tcs:GetCredentials-InParms"/>
++  </message>
++  <message name="GetCredentialsResponse">
++    <part name="outParms" type="tcs:GetCredentials-OutParms"/>
++  </message>
++  <!-- End: Additional implementation of getCredentials as 
++  it is not specified in the origin WSDL file       -->
+ 	<message name="CloseContextRequest">
+ 		<part name="inParms" type="tcs:CloseContext-InParms"/>
+ 	</message>
+@@ -1979,6 +2021,16 @@
+ 	<message name="LogPcrEventResponse">
+ 		<part name="outParms" type="tcs:LogPcrEvent-OutParms"/>
+ 	</message>
++  <!-- Begin: Additional implementation of pcrEventCount as 
++  it is not specified in the origin WSDL file       -->
++  <message name="PcrEventCountRequest">
++    <part name="inParms" type="tcs:PcrEventCount-InParms"/>
++  </message>
++  <message name="PcrEventCountResponse">
++    <part name="outParms" type="tcs:PcrEventCount-OutParms"/>
++  </message>
++  <!-- End: Additional implementation of pcrEventCount as 
++  it is not specified in the origin WSDL file       -->
+ 	<message name="GetPcrEventRequest">
+ 		<part name="inParms" type="tcs:GetPcrEvent-InParms"/>
+ 	</message>
+@@ -2621,6 +2673,15 @@
+ 			<input message="tns:OpenContextRequest"/>
+ 			<output message="tns:OpenContextResponse"/>
+ 		</operation>
++    <!-- Begin: Additional implementation of getCredentials as 
++    it is not specified in the origin WSDL file       -->
++    <operation name="GetCredentials">
++      <documentation>Service definition of function GetCredentials</documentation>
++      <input message="tns:GetCredentialsRequest"/>
++      <output message="tns:GetCredentialsResponse"/>
++    </operation>
++    <!-- End: Additional implementation of getCredentials as 
++    it is not specified in the origin WSDL file       -->
+ 		<operation name="CloseContext">
+ 			<documentation>Service definition of function CloseContext</documentation>
+ 			<input message="tns:CloseContextRequest"/>
+@@ -2701,6 +2762,15 @@
+ 			<input message="tns:LogPcrEventRequest"/>
+ 			<output message="tns:LogPcrEventResponse"/>
+ 		</operation>
++    <!-- Begin: Additional implementation of pcrEventCount as 
++    it is not specified in the origin WSDL file       -->
++    <operation name="PcrEventCount">
++      <documentation>Service definition of function PcrEventCount</documentation>
++      <input message="tns:PcrEventCountRequest"/>
++      <output message="tns:PcrEventCountResponse"/>
++    </operation>
++    <!-- End: Additional implementation of pcrEventCount as 
++    it is not specified in the origin WSDL file       -->
+ 		<operation name="GetPcrEvent">
+ 			<documentation>Service definition of function GetPcrEvent</documentation>
+ 			<input message="tns:GetPcrEventRequest"/>
+@@ -3262,6 +3332,19 @@
+ 				<SOAP:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:TCG-TSS"/>
+ 			</output>
+ 		</operation>
++    <!-- Begin: Additional implementation of getCredentials as 
++                it is not specified in the origin WSDL file       -->
++    <operation name="GetCredentials">
++      <SOAP:operation/>
++      <input>
++        <SOAP:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:TCG-TSS"/>
++      </input>
++      <output>
++        <SOAP:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:TCG-TSS"/>
++      </output>
++    </operation>
++    <!-- End: Additional implementation of getCredentials as 
++              it is not specified in the origin WSDL file       -->
+ 		<operation name="GetCapability">
+ 			<SOAP:operation/>
+ 			<input>
+@@ -3406,6 +3489,19 @@
+ 				<SOAP:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:TCG-TSS"/>
+ 			</output>
+ 		</operation>
++    <!-- Begin: Additional implementation of pcrEventCount as 
++                it is not specified in the origin WSDL file       -->
++    <operation name="PcrEventCount">
++      <SOAP:operation/>
++      <input>
++        <SOAP:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:TCG-TSS"/>
++      </input>
++      <output>
++        <SOAP:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:TCG-TSS"/>
++      </output>
++    </operation>
++    <!-- End: Additional implementation of pcrEventCount as 
++              it is not specified in the origin WSDL file       -->
+ 		<operation name="GetPcrEvent">
+ 			<SOAP:operation/>
+ 			<input>

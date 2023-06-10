@@ -1,0 +1,115 @@
+FROM ubuntu:20.04
+RUN apt-get update
+RUN apt-get install -y \
+    autoconf \
+    autoconf-archive \
+    automake \
+    build-essential \
+    g++ \
+    gcc \
+    git \
+    libssl-dev \
+    libtool \
+    m4 \
+    net-tools \
+    pkg-config \
+    lcov \
+    pandoc \
+    liburiparser-dev \
+    libdbus-l-dev \
+    libglib2.0-dev \
+    dbus-x11 \
+    libssl-dev \
+    libtool \
+    libcurl4-gnutls-dev \
+    libgcrypt20-dev \
+    libcmocka-dev \
+    uthash-dev  
+
+#OpenSSL
+ARG openssl_name=openssl-1.1.0h
+WORKDIR /tmp
+ADD https://www.openssl.org/source/$openssl_name.tar.gz .
+RUN tar xvf $openssl_name.tar.gz 
+WORKDIR $openssl_name
+RUN ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl \
+       && make -j$(nproc) \
+       && make install \
+       && openssl version 
+
+# IBM's Software TPM 2.0
+ARG ibmtpm_name=ibmtpm1637
+WORKDIR /tmp
+ADD "https://sourceforge.net/projects/ibmswtpm2/files/$ibmtpm_name.tar.gz" .
+RUN mkdir -p $ibmtpm_name \
+        && tar xvf $ibmtpm_name.tar.gz -C $ibmtpm_name 
+WORKDIR $ibmtpm_name/src
+RUN CFLAGS="-I/usr/local/openssl/include" make -j$(nproc) \
+        && cp tpm_server /usr/local/bin
+
+RUN apt-get install -y \
+    libcmocka0 \
+    libcmocka-dev \
+    libgcrypt20-dev \
+    libtool \
+    liburiparser-dev \
+    uthash-dev
+
+#TPM2-TSS
+ADD "https://github.com/tpm2-software/tpm2-tss/archive/2.4.5.tar.gz" /tmp
+RUN cd /tmp && tar xvf tpm2-tss-2.4.5.tar.gz
+WORKDIR /tmp/tpm2-tss-2.4.5
+RUN ./bootstrap \
+        && ./configure --perfix=/usr  \
+        && make -j$(nproc) \
+        && make install \
+        && ldconfig
+ENV LD_LIBRARY_PATH /usr/local/lib
+  
+# TPM2-ABRMD 
+ADD "https://github.com/tpm2-software/tpm2-abrmd/archive/2.4.0-rc0.tar.gz" /tmp 
+RUN cd /tmp && tar xvf tpm2-abrmd-2.4.0-rc0.tar.gz
+WORKDIR /tmp/tpm2-abrmd-2.4.0-rc0
+RUN ./bootstrap \
+        && ./configure --with-dbuspolicydir=/etc/dbus-1/system.d --with-udevrulesdir=/usr/lib/udev/rules.d  --with-systemdsystemunitdir=/usr/lib/systemd/system --libdir=/usr/lib64 --prefix=/usr \
+        && make -j$(nproc) \
+        && make install
+
+#TPM2-TOOLS
+ADD "https://github.com/tpm2-software/tpm2-tools/archive/4.2.1.tar.gz" /tmp
+RUN cd /tmp && tar xvf tpm2-tools-4.2.1.tar.gz
+WORKDIR /tmp/tpm2-tools-4.2.1
+RUN ./bootstrap \
+        && ./configure --perfix=/usr \
+        && make -j$(nproc) \
+        && make install 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

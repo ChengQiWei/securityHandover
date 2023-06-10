@@ -1,0 +1,33 @@
+#!/bin/sh
+# 
+#  Copyright (C) 2008 IAIK, Graz University of Technology
+# 
+
+FULLPATH=`readlink -f $0`
+DIR=`dirname $FULLPATH`  # the absolute directory this script is located in
+
+LIBPATH=$DIR/../ext_libs/
+
+CLASSPATH_LOCAL=${LIBPATH}/activation.jar
+CLASSPATH_LOCAL=${LIBPATH}/axis-ant.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/axis.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/commons-daemon.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/commons-discovery-0.2.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/commons-logging-1.0.4.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/jaxrpc.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/log4j-1.2.8.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/mail.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/saaj.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/wsdl4j-1.5.1.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/xerces.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/hsqldbmin.jar:$CLASSPATH_LOCAL
+
+CLASSPATH_LOCAL=$DIR/../lib/iaik_jtss_tcs.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=$DIR/../lib/iaik_jtss_tcs_soap.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=$DIR/../lib/iaik_jtss_tsp.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=$DIR/../lib/iaik_jtss_tsp_soap.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=$DIR/iaik_jtss_tsp_tests.jar:$CLASSPATH_LOCAL
+CLASSPATH_LOCAL=${LIBPATH}/junit.jar:$CLASSPATH_LOCAL
+
+java -cp $CLASSPATH_LOCAL iaik.tc.tss.test.tsp.java.TestMain "$@"
+

@@ -1,0 +1,19 @@
+
+*** Readme File for hsqldbmin.jar shipping with IAIK jTSS ***
+
+jTSS ships with a HSQL binary, which is built from the HSQL source using the 
+minimum configuration 'jarmin'.  
+
+* LICENSE *
+See file HSQLDN_LICENSE for license information.
+
+* RECOMPILING hsqldbmin.jar *
+
+To recompile HSQLDB, download the latest version from http://www.hsqldb.org/ ,
+go to the build directory and build it with 'ant jarmin'. This will create 
+the hsqldbmin.jar, which is suitable for our needs, in the libs folder.
+
+If you want to make the jar file smaller, you can additionally exclude 
+org/hsqldb/DatabaseInformationFull.class in the build.xml file at the target
+'hsqldbmin'. Though, this will make it only a few KB smaller.
+

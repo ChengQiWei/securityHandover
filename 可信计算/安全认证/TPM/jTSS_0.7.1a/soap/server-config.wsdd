@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file defines the classpath and some parameters for the AXIS server. -->
+<deployment xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+  <service name="TSSCoreServiceBindingImpl" provider="java:RPC">
+    <parameter name="allowedMethods" value="*"/>
+    <parameter name="scope" value="Request"/>
+    <parameter name="className" value="iaik.tc.tss.impl.java.tcs.soapservice.TSSCoreServiceBindingImpl"/>
+  </service>
+  <transport name="http">
+    <requestFlow>
+      <handler type="URLMapper"/>
+      <handler type="java:org.apache.axis.handlers.http.HTTPAuthHandler"/>
+    </requestFlow>
+    <parameter name="qs:list" value="org.apache.axis.transport.http.QSListHandler"/>
+    <parameter name="qs:wsdl" value="org.apache.axis.transport.http.QSWSDLHandler"/>
+    <parameter name="qs:method" value="org.apache.axis.transport.http.QSMethodHandler"/>
+  </transport>
+</deployment>
